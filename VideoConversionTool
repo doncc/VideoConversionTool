@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "
+********************************
+***         视频转换工具     ***
+***           Darkbug        ***
+***        www.doncc.org     ***
+*** https://github.com/doncc ***
+********************************"
+
+SourceFileType=wmv
+TargetFileType=mp4
+
+for video in `ls -R | grep $SourceFileType`
+do
+  old_video_file=$(find $(pwd) -name $video)
+  echo "源视频路径："$old_video_file
+
+  new_video_file=${old_video_file/%.$SourceFileType/.$TargetFileType}
+  echo "目标视频路径："$new_video_file
+
+  ffmpeg -i "$old_video_file" "$new_video_file"
+
+  echo "****************************************"
+done
