@@ -1,25 +1,40 @@
 #!/bin/bash
+# by Git@Darkbug
+# Function: 基于ffmpeg的批量视频转换工具
+# Use: SourceFileType为源视频格式，TargetFileType为目标视频格式。日志输出在同级目录_log中
 
-echo "
+echo -e "\033[34m
 ********************************
 ***         视频转换工具     ***
 ***           Darkbug        ***
-***        www.doncc.org     ***
 *** https://github.com/doncc ***
-********************************"
+******************************** \033[0m"
 
 SourceFileType=wmv
 TargetFileType=mp4
+log_file=_log
 
 for video in `ls -R | grep $SourceFileType`
 do
   old_video_file=$(find $(pwd) -name $video)
-  echo "源视频路径："$old_video_file
+  echo "源视频路径：$old_video_file " | tee -a $log_file
 
   new_video_file=${old_video_file/%.$SourceFileType/.$TargetFileType}
-  echo "目标视频路径："$new_video_file
+  echo "目标视频路径：$new_video_file" | tee -a $log_file
 
-  ffmpeg -i "$old_video_file" "$new_video_file"
+  if [ -z "$old_video_file" ] || [ -z "$new_video_file" ]; then
+      echo -e "\033[31m 转码失败，剩余视频为转码失败的视频。请审核并重新转码 \033[0m"  | tee -a $log_file
+      echo "****************************************"  | tee -a $log_file
+      continue
+  fi
 
-  echo "****************************************"
+  # 使用ffmpeg自带aac音频解码
+  ffmpeg -i "$old_video_file" -strict -2 "$new_video_file"
+
+  echo -e "\033[32m 转码成功! \033[0m"  | tee -a $log_file
+
+  rm -f "$old_video_file"
+  echo -e "\033[32m 已删除源视频：'$old_video_file' \033[0m"  | tee -a $log_file
+
+  echo "****************************************"  | tee -a $log_file
 done
